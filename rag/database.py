@@ -26,7 +26,7 @@ class Database:
     def delete_source_chunks(self, source:str=None, folder:str=None, file:str=None):
         if not source:
             source = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder, file)
-        ids = self.__get_source_chunks(source)['ids']
+        ids = self.db.get(where={'source': source})
         self.db.delete(ids)
 
     def insert_chunks(self, chunks:list):
@@ -48,13 +48,5 @@ class Database:
 
     def search(self, query:str, sources=[]):
         condition = {'source': {'$in': sources}} if sources else {}
-        # results = self.db.similarity_search_with_relevance_scores(query, k=5, score_threshold=0.0, filter=condition)
         results = self.db.similarity_search(query, k=5, filter=condition)
-        # return [result[0] for result in results] # retornando apenas os Documents
         return results
-
-    def __get_source_chunks(self, source:str):
-        """
-        Responsável por retornar os chunks que contém a origem especificada.
-        """
-        return self.db.get(where={'source': source})

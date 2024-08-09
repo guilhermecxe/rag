@@ -14,7 +14,7 @@ class Assistant:
         chunks_text = []
         for chunk in chunks:
             chunks_text.append(
-                f"""{chunk.page_content}\n\nSource: {chunk.metadata['source']}""")
+                f"{chunk.page_content}\n\nSource: {chunk.metadata['source']}")
         return '\n\n---\n'.join(chunks_text)
     
     def __parse_contents(self, contents):
