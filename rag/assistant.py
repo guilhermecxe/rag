@@ -1,7 +1,10 @@
 from .database import Database
-from .files import get_all_files, tree_to_list
+from .files import get_all_files
 from .parsers import PdfParser
 from .model import AiModel
+from .settings import SETTINGS
+
+import os
 
 class Assistant:
     def __init__(self):
@@ -13,6 +16,14 @@ class Assistant:
             chunks_text.append(
                 f"""{chunk.page_content}\n\nSource: {chunk.metadata['source']}""")
         return '\n\n---\n'.join(chunks_text)
+    
+    def __parse_contents(self, contents):
+        file_paths = []
+        for folder, files in contents.items():
+            for file in files:
+                path = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder, file)
+                file_paths.append(path)
+        return file_paths
 
     def get_new_contents(self):
         database_sources = self.db.get_unique_sources(as_dict=False)
@@ -33,7 +44,7 @@ class Assistant:
         self.db.reset_database()
 
     def ask(self, question, contents={}):
-        sources = tree_to_list(contents)
+        sources = self.__parse_contents(contents)
         relevant_chunks = self.db.search(question, sources=sources)
         context = self.__parse_context(relevant_chunks)
 

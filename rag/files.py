@@ -29,11 +29,3 @@ def get_all_files(as_tree=False):
             for _, file_path in get_files(folder, with_path=True):
                 files.append(file_path)
     return files
-
-def tree_to_list(tree:dict) -> list:
-    file_paths = []
-    for folder, files in tree.items():
-        for file in files:
-            path = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder, file)
-            file_paths.append(path)
-    return file_paths

@@ -40,3 +40,9 @@ class TestAssistant(object):
         question = 'quais as diretorias da fapeg?'
         answear = self.ass.ask(question)
         assert isinstance(answear, str) is True
+
+    def test_ask_with_contents(self):
+        question = 'quais as diretorias da fapeg?'
+        answear = self.ass.ask(question, {'FAPEG': ['Estatuto da FAPEG 2023.pdf']})
+        assert isinstance(answear, str) is True
+        
