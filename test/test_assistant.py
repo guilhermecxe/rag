@@ -39,4 +39,4 @@ class TestAssistant(object):
     def test_ask(self):
         question = 'quais as diretorias da fapeg?'
         answear = self.ass.ask(question)
-        assert isinstance(answear, str)
+        assert isinstance(answear, str) is True
