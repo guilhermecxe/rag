@@ -23,10 +23,8 @@ class Database:
             batch = ids[i:i + batch_size]
             self.db.delete(batch)
 
-    def delete_source_chunks(self, source:str=None, folder:str=None, file:str=None):
-        if not source:
-            source = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder, file)
-        ids = self.db.get(where={'source': source})
+    def delete_sources_chunks(self, sources:list[str]):
+        ids = self.db.get(where={'source': {'$in': sources}})
         self.db.delete(ids)
 
     def insert_chunks(self, chunks:list):
