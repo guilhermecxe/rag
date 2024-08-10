@@ -2,14 +2,16 @@ import os
 
 from .settings import SETTINGS
 
-
-if not os.path.exists(SETTINGS.get('CONTENTS_PATH')):
-    os.mkdir(SETTINGS.get('CONTENTS_PATH'))
+def __ensure_contents_folder():
+    if not os.path.exists(SETTINGS.get('CONTENTS_PATH')):
+        os.mkdir(SETTINGS.get('CONTENTS_PATH'))
 
 def get_folders() -> list[str]:
+    __ensure_contents_folder()
     return os.listdir(SETTINGS.get('CONTENTS_PATH'))
 
 def get_files(folder, type_=None, with_path=False) -> list[str] | list[tuple[str, str]]:
+    __ensure_contents_folder()
     folder_path = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder)
 
     if with_path:
