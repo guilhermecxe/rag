@@ -16,8 +16,8 @@ from rag import Assistant
 
 question = 'Faça um breve resumo do contexto fornecido'
 
-ass = Assistant()
-answear = ass.ask(question)
+ai = Assistant()
+answear = ai.ask(question)
 
 print(question)
 print(answear)
