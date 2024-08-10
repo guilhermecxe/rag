@@ -44,6 +44,14 @@ class TestAssistant(object):
         self.ai.reset_database()
         assert content_path in available_contents
 
+    def test_delete_contents(self):
+        self.ai.update_database()
+        content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.delete_contents([content_path])
+        assert not content_path in self.ai.get_available_contents(as_dict=False)
+        assert 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf' in self.ai.get_available_contents(as_dict=False)
+        self.ai.reset_database()
+
     def test_ask(self):
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question)

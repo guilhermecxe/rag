@@ -24,7 +24,7 @@ class Database:
             self.db.delete(batch)
 
     def delete_sources_chunks(self, sources:list[str]):
-        ids = self.db.get(where={'source': {'$in': sources}})
+        ids = self.db.get(where={'source': {'$in': sources}})['ids']
         self.db.delete(ids)
 
     def insert_chunks(self, chunks:list):

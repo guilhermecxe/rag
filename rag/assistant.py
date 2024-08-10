@@ -45,6 +45,9 @@ class Assistant:
         chunks = PdfParser.split_documents(documents)
         self.db.insert_chunks(chunks)
 
+    def delete_contents(self, contents_path):
+        self.db.delete_sources_chunks(contents_path)
+
     def reset_database(self):
         self.db.reset_database()
 
