@@ -53,12 +53,15 @@ class TestAssistant(object):
         self.ai.reset_database()
 
     def test_ask(self):
+        self.ai.update_database()
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question)
         assert isinstance(answear, str) is True
+        self.ai.reset_database()
 
     def test_ask_with_contents(self):
+        self.ai.update_database()
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, {'FAPEG': ['Estatuto da FAPEG 2023.pdf']})
         assert isinstance(answear, str) is True
-        
+        self.ai.reset_database()

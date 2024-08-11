@@ -52,7 +52,7 @@ class Assistant:
         self.db.reset_database()
 
     def ask(self, question, contents={}):
-        sources = self.__parse_contents(contents)
+        sources = self.__parse_contents(contents) if isinstance(contents, dict) else contents
         relevant_chunks = self.db.search(question, sources=sources)
         context = self.__parse_context(relevant_chunks)
 
