@@ -6,9 +6,18 @@ from .settings import SETTINGS
 from .files import get_all_files
 
 import pandas as pd
+import os
 
 class PdfParser:
+    MAX_SIZE = 20000 # KB
+
     def load_pdf(file_path:str) -> list:
+        file_size = os.path.getsize(file_path) / 1000
+        if file_size > PdfParser.MAX_SIZE:
+            raise OSError(
+                f'''File size {int(file_size)} KB exceeds the maximum allowed '''
+                f'''size of {PdfParser.MAX_SIZE} KB. File path: {file_path}.''')
+
         return PyMuPDFLoader(file_path).load_and_split()
     
     def load_pdfs(paths:list[str]):
@@ -35,7 +44,15 @@ class PdfParser:
         return chunks
 
 class XlsxParser:
+    MAX_SIZE = 2000 # KB
+
     def load_xlsx(file_path:str) -> list[Document]:
+        file_size = os.path.getsize(file_path) / 1000
+        if file_size > XlsxParser.MAX_SIZE:
+            raise OSError(
+                f'''File size {int(file_size)} KB exceeds the maximum allowed '''
+                f'''size of {XlsxParser.MAX_SIZE} KB. File path: {file_path}.''')
+
         df = pd.read_excel(file_path)
         columns = df.columns
         text = ''

@@ -23,7 +23,6 @@ class TestAssistant(object):
             'Xlsx\\file_example_XLS_100.xlsx']
         expected = [os.path.join(contents_path, content) for content in expected_contents]
         actual = self.ai.get_new_contents()
-        self.ai.reset_database()
         assert set(actual) == set(expected)
 
     def test_update_database_and_get_available_contents(self):
@@ -36,29 +35,32 @@ class TestAssistant(object):
             'Xlsx\\file_example_XLS_100.xlsx']
         expected = [os.path.join(contents_path, content) for content in expected_contents]
         actual = self.ai.get_available_contents(as_dict=False)
-        self.ai.reset_database()
         assert set(actual) == set(expected)
+        self.ai.reset_database()
 
     def test_add_content(self):
         content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
-        self.ai.reset_database()
         assert content_path in available_contents
+        self.ai.reset_database()
 
     def test_add_content_xlsx(self):
         content_path = 'contents\\Xlsx\\file_example_XLS_100.xlsx'
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
-        self.ai.reset_database()
         assert content_path in available_contents
+        self.ai.reset_database()
 
     def test_delete_contents(self):
-        self.ai.update_database()
-        content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
-        self.ai.delete_contents([content_path])
-        assert not content_path in self.ai.get_available_contents(as_dict=False)
-        assert 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf' in self.ai.get_available_contents(as_dict=False)
+        content_path1 = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        content_path2 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        self.ai.add_content(content_path1)
+        self.ai.add_content(content_path2)
+        self.ai.delete_contents([content_path1])
+        available_contents = self.ai.get_available_contents(as_dict=False)
+        assert not content_path1 in available_contents
+        assert content_path2 in available_contents
         self.ai.reset_database()
 
     def test_update_valid_settings(self):
@@ -69,23 +71,24 @@ class TestAssistant(object):
             self.ai.update_settings(openai_api_key='abc')
 
     def test_ask(self):
-        self.ai.update_database()
+        content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        self.ai.add_content(content_path)
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question)
         assert isinstance(answear, str) is True
         self.ai.reset_database()
 
     def test_ask_with_contents(self):
-        # self.ai.reset_database()
-        self.ai.update_database()
+        content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        self.ai.add_content(content_path)
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, {'FAPEG': ['Estatuto da FAPEG 2023.pdf']})
         assert isinstance(answear, str) is True
         self.ai.reset_database()
 
     def test_ask_with_contents_as_list(self):
-        # self.ai.reset_database()
-        self.ai.update_database()
+        content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        self.ai.add_content(content_path)
         print('get_chunks_count:', self.ai.db.get_chunks_count())
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, ['contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'])

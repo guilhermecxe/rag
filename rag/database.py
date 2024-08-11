@@ -14,7 +14,7 @@ class Database:
         client = chromadb.PersistentClient(path=SETTINGS.get('VECTORS_DATABASE_PATH'))
         self.collection = client.get_or_create_collection(
             name=SETTINGS.get('COLLECTION_NAME'),
-            embedding_function=get_embedding_function()
+            # embedding_function=get_embedding_function()
         )
 
     def get_chunks_count(self):
@@ -23,7 +23,9 @@ class Database:
     def reset_database(self):
         ids = self.collection.get(include=[])['ids']
         if ids:
-            self.collection.delete(ids=ids)
+            limit = 5461
+            for i in range(0, len(ids), limit):
+                self.collection.delete(ids=ids[i:i+limit])
 
     def delete_sources_chunks(self, sources:list[str]):
         ids = self.collection.get(include=[], where={'source': {'$in': sources}})['ids']
@@ -36,7 +38,8 @@ class Database:
             ids.append(str(uuid.uuid4()))
             documents.append(chunk.page_content)
             metadatas.append(chunk.metadata)
-        self.collection.add(ids=ids, documents=documents, metadatas=metadatas)
+        for i in range(0, len(ids), 500):
+            self.collection.add(ids=ids[i:i+500], documents=documents[i:i+500], metadatas=metadatas[i:i+500])
 
     def get_unique_sources(self, as_dict=False):
         metadatas = self.collection.get(include=['metadatas'])['metadatas']
