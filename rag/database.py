@@ -11,7 +11,7 @@ class Database:
         self.__initialize_collection()
 
     def __initialize_collection(self):
-        client = chromadb.Client(Settings(persist_directory=SETTINGS.get('VECTORS_DATABASE_PATH')))
+        client = chromadb.PersistentClient(path=SETTINGS.get('VECTORS_DATABASE_PATH'))
         self.collection = client.get_or_create_collection(
             name=SETTINGS.get('COLLECTION_NAME'),
             embedding_function=get_embedding_function()
