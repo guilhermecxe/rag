@@ -50,8 +50,12 @@ class Assistant:
             print('finalizou xlsx')
 
     def add_content(self, path):
-        documents = PdfParser.load_pdf(path)
-        chunks = PdfParser.split_documents(documents)
+        if path.endswith('.pdf'):
+            documents = PdfParser.load_pdf(path)
+            chunks = PdfParser.split_documents(documents)
+        elif path.endswith('.xlsx'):
+            documents = XlsxParser.load_xlsx(path)
+            chunks = XlsxParser.split_documents(documents)
         self.db.insert_chunks(chunks)
 
     def delete_contents(self, contents_path):
