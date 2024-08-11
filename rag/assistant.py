@@ -9,6 +9,7 @@ import os
 class Assistant:
     def __init__(self):
         self.db = Database()
+        self.model = AiModel()
 
     def __parse_context(self, chunks):
         chunks_text = []
@@ -51,13 +52,17 @@ class Assistant:
     def reset_database(self):
         self.db.reset_database()
 
+    def update_settings(self, **kwargs):
+        openai_api_key = kwargs.get('openai_api_key', None)
+        if openai_api_key and not self.model.update_openai_api_key(openai_api_key):
+            raise ValueError("Invalid OpenAI API key")
+        return True
+
     def ask(self, question, contents={}):
         sources = self.__parse_contents(contents) if isinstance(contents, dict) else contents
         relevant_chunks = self.db.search(question, sources=sources)
         context = self.__parse_context(relevant_chunks)
-
-        model = AiModel()
         
-        answear = model.ask(question, context)
+        answear = self.model.ask(question, context)
 
         return answear

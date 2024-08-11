@@ -52,6 +52,13 @@ class TestAssistant(object):
         assert 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf' in self.ai.get_available_contents(as_dict=False)
         self.ai.reset_database()
 
+    def test_update_valid_settings(self):
+        assert self.ai.update_settings(openai_api_key=os.environ['OPENAI_API_KEY'])
+
+    def test_update_invalid_settings(self):
+        with pytest.raises(ValueError, match='Invalid OpenAI API key'):
+            self.ai.update_settings(openai_api_key='abc')
+
     def test_ask(self):
         self.ai.update_database()
         question = 'quais as diretorias da fapeg?'
@@ -60,6 +67,7 @@ class TestAssistant(object):
         self.ai.reset_database()
 
     def test_ask_with_contents(self):
+        # self.ai.reset_database()
         self.ai.update_database()
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, {'FAPEG': ['Estatuto da FAPEG 2023.pdf']})
@@ -67,7 +75,9 @@ class TestAssistant(object):
         self.ai.reset_database()
 
     def test_ask_with_contents_as_list(self):
+        # self.ai.reset_database()
         self.ai.update_database()
+        print('get_chunks_count:', self.ai.db.get_chunks_count())
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, ['contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'])
         assert isinstance(answear, str) is True
