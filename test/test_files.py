@@ -6,7 +6,7 @@ from rag.settings import SETTINGS
 
 class TestGetFolders(object):
     def test_get_folders(self):
-        expected = ['FAPEG', 'Sherlock Holmes']
+        expected = ['FAPEG', 'Sherlock Holmes', 'Xlsx']
         actual = get_folders()
         assert actual == expected
 

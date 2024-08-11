@@ -1,6 +1,6 @@
 from .database import Database
 from .files import get_all_files
-from .parsers import PdfParser
+from .parsers import PdfParser, XlsxParser
 from .model import AiModel
 from .settings import SETTINGS
 
@@ -36,10 +36,18 @@ class Assistant:
 
     def update_database(self):
         new_files = self.get_new_contents()
-        if new_files:
-            documents = PdfParser.load_pdfs(new_files)
+        pdf = list(filter(lambda file: file.endswith('.pdf'), new_files))
+        xlsx = list(filter(lambda file: file.endswith('.xlsx'), new_files))
+        if pdf:
+            documents = PdfParser.load_pdfs(pdf)
             chunks = PdfParser.split_documents(documents)
             self.db.insert_chunks(chunks)
+        if xlsx:
+            print('iniciou xlsx')
+            documents = XlsxParser.load_xlsxs(xlsx)
+            chunks = XlsxParser.split_documents(documents)
+            self.db.insert_chunks(chunks)
+            print('finalizou xlsx')
 
     def add_content(self, path):
         documents = PdfParser.load_pdf(path)

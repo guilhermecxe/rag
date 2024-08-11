@@ -19,7 +19,8 @@ class TestAssistant(object):
         expected_contents = [
             'FAPEG\\Edital nº 08.2024 - Meninas em STEM - 1ª Retificação.pdf',
             'FAPEG\\Estatuto da FAPEG 2023.pdf',
-            'Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf']
+            'Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf',
+            'Xlsx\\file_example_XLS_100.xlsx']
         expected = [os.path.join(contents_path, content) for content in expected_contents]
         actual = self.ai.get_new_contents()
         self.ai.reset_database()
@@ -31,14 +32,22 @@ class TestAssistant(object):
         expected_contents = [
             'FAPEG\\Edital nº 08.2024 - Meninas em STEM - 1ª Retificação.pdf',
             'FAPEG\\Estatuto da FAPEG 2023.pdf',
-            'Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf']
+            'Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf',
+            'Xlsx\\file_example_XLS_100.xlsx']
         expected = [os.path.join(contents_path, content) for content in expected_contents]
         actual = self.ai.get_available_contents(as_dict=False)
         self.ai.reset_database()
         assert set(actual) == set(expected)
 
-    def test_add_contents(self):
+    def test_add_content(self):
         content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.add_content(content_path)
+        available_contents = self.ai.get_available_contents(as_dict=False)
+        self.ai.reset_database()
+        assert content_path in available_contents
+
+    def test_add_content_xlsx(self):
+        content_path = 'contents\\Xlsx\\file_example_XLS_100.xlsx'
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
         self.ai.reset_database()

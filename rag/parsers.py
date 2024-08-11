@@ -1,8 +1,11 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.schema.document import Document
 
 from .settings import SETTINGS
 from .files import get_all_files
+
+import pandas as pd
 
 class PdfParser:
     def load_pdf(file_path:str) -> list:
@@ -30,4 +33,33 @@ class PdfParser:
         )
         chunks = text_splitter.split_documents(documents)
         return chunks
+
+class XlsxParser:
+    def load_xlsx(file_path:str) -> list[Document]:
+        df = pd.read_excel(file_path)
+        columns = df.columns
+        text = ''
+        for i, row in df.iterrows():
+            for col in columns:
+                text += (
+                    f"""{col}: {row[col]}\n"""
+                )
+            text += "\n---\n"
+        document = Document(page_content=text, metadata={'source': file_path})
+        return [document]
     
+    def load_xlsxs(paths:list[str]):
+        documents = []
+        for file in paths:
+            documents += XlsxParser.load_xlsx(file)
+        return documents
+    
+    def split_documents(document:str):
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=['\n\n', '---', '\n'],
+            chunk_size=SETTINGS.get('CHUNK_SIZE'),
+            chunk_overlap=0,
+            length_function=len,
+        )
+        chunks = text_splitter.split_documents(document)
+        return chunks
