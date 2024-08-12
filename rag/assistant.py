@@ -10,6 +10,7 @@ class Assistant:
     def __init__(self):
         self.db = Database()
         self.model = AiModel()
+        self.last_context = ''
 
     def __parse_context(self, chunks):
         chunks_text = []
@@ -76,5 +77,7 @@ class Assistant:
         context = self.__parse_context(relevant_chunks)
         
         answear = self.model.ask(question, context)
+
+        self.last_context = context
 
         return answear
