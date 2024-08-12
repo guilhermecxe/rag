@@ -10,9 +10,10 @@ SETTINGS = {
 
     # Database
     'VECTORS_DATABASE_PATH': 'database',
-    'CHUNK_SIZE': 500,
+    'CHUNK_SIZE': 1500,
     'CHUNK_OVERLAP': 100,
     'COLLECTION_NAME': 'contents',
+    'MAX_CONTEXT_CHUNKS': 40,
 
     # AI Model
     'GPT_MODEL': 'gpt-4o-mini',

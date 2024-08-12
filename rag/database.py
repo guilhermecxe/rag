@@ -14,7 +14,7 @@ class Database:
         client = chromadb.PersistentClient(path=SETTINGS.get('VECTORS_DATABASE_PATH'))
         self.collection = client.get_or_create_collection(
             name=SETTINGS.get('COLLECTION_NAME'),
-            # embedding_function=get_embedding_function()
+            embedding_function=get_embedding_function()
         )
 
     def get_chunks_count(self):
@@ -60,11 +60,20 @@ class Database:
         for i in range(len(query_result['ids'][0])):
             page_content = query_result['documents'][0][i]
             metadata = query_result['metadatas'][0][i]
+            distance = query_result['distances'][0][i]
+            metadata['similarity'] = 1-distance
             documents.append(Document(page_content=page_content, metadata=metadata))
         return documents
+    
+    def __filter_documents_by_similarity(self, documents, minimum=0.0):
+        return list(filter(lambda d: d.metadata['similarity'] >= minimum, documents))
 
-    def search(self, query:str, sources=[]):
+    def search(self, query:str, sources=[], only_positive_similarities=False):
         condition = {'source': {'$in': sources}} if sources else {}
-        results = self.collection.query(query_texts=[query], n_results=5, where=condition)
+        results = self.collection.query(query_texts=[query], n_results=SETTINGS['MAX_CONTEXT_CHUNKS'], where=condition)
         documents = self.__query_result_to_documents_list(results)
+        if only_positive_similarities:
+            documents = self.__filter_documents_by_similarity(documents, minimum=0.0)
+        if not documents:
+            raise ValueError('No chunks found that meet the similarity criteria.')
         return documents

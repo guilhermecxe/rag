@@ -70,9 +70,9 @@ class Assistant:
             raise ValueError("Invalid OpenAI API key")
         return True
 
-    def ask(self, question, contents={}):
+    def ask(self, question, contents={}, only_positive_similarities=False):
         sources = self.__parse_contents(contents) if isinstance(contents, dict) else contents
-        relevant_chunks = self.db.search(question, sources=sources)
+        relevant_chunks = self.db.search(question, sources, only_positive_similarities)
         context = self.__parse_context(relevant_chunks)
         
         answear = self.model.ask(question, context)

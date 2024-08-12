@@ -8,9 +8,13 @@ class TestAssistant(object):
     def setup_method(self):
         self.ai = Assistant()
         self.ai.reset_database()
+        self.__class__.instance = self 
+
+    @classmethod
+    def teardown_class(cls):
+        cls.instance.ai.reset_database()
 
     def test_reset_database(self):
-        self.ai.reset_database()
         contents = self.ai.get_available_contents(as_dict=False)
         assert len(contents) == 0
 
@@ -36,10 +40,10 @@ class TestAssistant(object):
         expected = [os.path.join(contents_path, content) for content in expected_contents]
         actual = self.ai.get_available_contents(as_dict=False)
         assert set(actual) == set(expected)
-        self.ai.reset_database()
 
     def test_add_content(self):
         content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.delete_contents([content_path])
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
         assert content_path in available_contents
@@ -89,8 +93,13 @@ class TestAssistant(object):
     def test_ask_with_contents_as_list(self):
         content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
         self.ai.add_content(content_path)
-        print('get_chunks_count:', self.ai.db.get_chunks_count())
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, ['contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'])
         assert isinstance(answear, str) is True
-        self.ai.reset_database()
+
+    def test_ask_with_only_positive_similarities(self):
+        content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.add_content(content_path)
+        question = 'quais as diretorias da fapeg?'
+        with pytest.raises(ValueError, match='No chunks found that meet the similarity criteria.'):
+            self.ai.ask(question, [content_path], only_positive_similarities=True)
