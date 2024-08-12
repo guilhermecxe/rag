@@ -8,8 +8,10 @@ import os
 
 class Assistant:
     def __init__(self):
+        self.settings = dict(SETTINGS)
         self.db = Database()
         self.model = AiModel()
+        self.last_question = ''
         self.last_context = ''
 
     def __parse_context(self, chunks):
@@ -23,7 +25,7 @@ class Assistant:
         file_paths = []
         for folder, files in contents.items():
             for file in files:
-                path = os.path.join(SETTINGS.get('CONTENTS_PATH'), folder, file)
+                path = os.path.join(self.settings['CONTENTS_PATH'], folder, file)
                 file_paths.append(path)
         return file_paths
 
@@ -78,6 +80,7 @@ class Assistant:
         
         answear = self.model.ask(question, context)
 
+        self.last_question = question
         self.last_context = context
 
         return answear

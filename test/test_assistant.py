@@ -47,10 +47,10 @@ class TestAssistant(object):
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
         assert content_path in available_contents
-        self.ai.reset_database()
 
     def test_add_content_xlsx(self):
         content_path = 'contents\\Xlsx\\file_example_XLS_100.xlsx'
+        self.ai.delete_contents([content_path])
         self.ai.add_content(content_path)
         available_contents = self.ai.get_available_contents(as_dict=False)
         assert content_path in available_contents
