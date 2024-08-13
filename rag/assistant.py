@@ -7,12 +7,14 @@ from .settings import SETTINGS
 import os
 
 class Assistant:
-    def __init__(self):
-        self.settings = dict(SETTINGS)
+    def __init__(self, openai_api_key=None):
         self.db = Database()
         self.model = AiModel()
         self.last_question = ''
         self.last_context = ''
+
+        self.settings = dict(SETTINGS)
+        self.settings['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
 
     def __parse_context(self, chunks):
         chunks_text = []
