@@ -67,6 +67,9 @@ class Assistant:
     def reset_database(self):
         self.db.reset_database()
 
+    def check_api_key(self, api_key=None):
+        return self.model.check_api_key(api_key)
+
     def update_settings(self, **kwargs):
         openai_api_key = kwargs.get('openai_api_key', None)
         if openai_api_key and not self.model.update_openai_api_key(openai_api_key):

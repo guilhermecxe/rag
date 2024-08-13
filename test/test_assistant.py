@@ -67,6 +67,12 @@ class TestAssistant(object):
         assert content_path2 in available_contents
         self.ai.reset_database()
 
+    def test_check_valid_api_key(self):
+        assert self.ai.check_api_key()
+
+    def test_check_invalid_api_key(self):
+        assert not self.ai.check_api_key('abc')
+
     def test_update_valid_settings(self):
         assert self.ai.update_settings(openai_api_key=os.environ['OPENAI_API_KEY'])
 
