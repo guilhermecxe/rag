@@ -59,9 +59,9 @@ class XlsxParser:
         for i, row in df.iterrows():
             for col in columns:
                 text += (
-                    f"""{col}: {row[col]}\n"""
+                    f"""{row[col]}\n"""
                 )
-            text += "\n---\n"
+            text += "\n"
         document = Document(page_content=text, metadata={'source': file_path})
         return [document]
     
