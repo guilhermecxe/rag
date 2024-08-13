@@ -73,6 +73,12 @@ class TestAssistant(object):
     def test_check_invalid_api_key(self):
         assert not self.ai.check_api_key('abc')
 
+    def test_check_valid_model(self):
+        assert self.ai.check_model('gpt-4o-mini')
+
+    def test_check_invalid_model(self):
+        assert not self.ai.check_model('gpt-3k-maxi')
+
     def test_update_valid_settings(self):
         assert self.ai.update_settings(openai_api_key=os.environ['OPENAI_API_KEY'])
 
@@ -81,8 +87,10 @@ class TestAssistant(object):
             self.ai.update_settings(openai_api_key='abc')
 
     def test_ask(self):
-        content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
-        self.ai.add_content(content_path)
+        content_path1 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        content_path2 = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.add_content(content_path1)
+        self.ai.add_content(content_path2)
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question)
         assert isinstance(answear, str) is True

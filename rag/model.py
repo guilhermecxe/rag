@@ -1,5 +1,6 @@
 from langchain.prompts import ChatPromptTemplate
 from datetime import date
+from openai import NotFoundError
 import openai
 import os
 
@@ -35,6 +36,15 @@ class AiModel():
         else:
             os.environ['OPENAI_API_KEY'] = old_key
             self.reset_client()
+            return True
+        
+    def check_model(self, model):
+        new_client = openai.OpenAI()
+        try:
+            new_client.chat.completions.create(model=model, messages=[{'role': 'user', 'content': 'Hello!'}])
+        except NotFoundError:
+            return False
+        else:
             return True
 
     def ask(self, question:str, context:str):
