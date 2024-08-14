@@ -40,11 +40,15 @@ class AiModel():
     def ask(self, question:str, context:str):
         self.last_prompt = self.prompt_template.format(question=question, context=context)
 
-        return self.client.chat.completions.create(
-            model=SETTINGS.get('GPT_MODEL'),
-            messages=[
-                {'role': 'system', 'content': SETTINGS.get('SYSTEM_INSTRUCTION')},
-                {'role': 'user', 'content': self.last_prompt}
-            ]
-        ).choices[0].message.content
-    
+        try:
+            return self.client.chat.completions.create(
+                model=SETTINGS.get('GPT_MODEL'),
+                messages=[
+                    {'role': 'system', 'content': SETTINGS.get('SYSTEM_INSTRUCTION')},
+                    {'role': 'user', 'content': self.last_prompt}
+                ]
+            ).choices[0].message.content
+        except openai.NotFoundError:
+            raise ValueError(
+                f'''It appears that the model being used ({SETTINGS['GPT_MODEL']}) '''
+                 '''is not the suitable for this purpose.''')
