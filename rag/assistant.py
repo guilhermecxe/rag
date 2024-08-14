@@ -8,7 +8,7 @@ import os
 
 class Assistant:
     def __init__(self, openai_api_key=None):
-        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
+        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ.get('OPENAI_API_KEY')
         
         self.db = Database()
         self.model = AiModel()

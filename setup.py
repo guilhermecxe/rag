@@ -12,7 +12,7 @@ setup(
     author="Guilherme Alves",
     description="",
     name="rag",
-    version="0.0.22",
+    version="0.0.23",
     packages=find_packages(include=["rag"]),
     python_requires='>=3.10',
     install_requires=required,

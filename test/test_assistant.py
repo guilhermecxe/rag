@@ -1,4 +1,5 @@
 import pytest
+import openai
 import os
 
 from rag.assistant import Assistant
@@ -8,7 +9,7 @@ class TestAssistant(object):
     def setup_method(self):
         self.ai = Assistant()
         self.ai.reset_database()
-        self.__class__.instance = self 
+        self.__class__.instance = self
 
     @classmethod
     def teardown_class(cls):
@@ -95,6 +96,13 @@ class TestAssistant(object):
             self.ai.update_settings(openai_api_key='abc')
         with pytest.raises(ValueError, match='Invalid GPT Model'):
             self.ai.update_settings(gpt_model='abc')
+
+    def test_no_api_key(self):
+        current_key = os.environ.get('OPENAI_API_KEY')
+        os.environ.pop('OPENAI_API_KEY', None)
+        with pytest.raises(openai.OpenAIError):
+            Assistant()
+        SETTINGS['OPENAI_API_KEY'] = os.environ['OPENAI_API_KEY'] = current_key # voltando à configuração inicial
 
     def test_ask(self):
         content_path1 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
