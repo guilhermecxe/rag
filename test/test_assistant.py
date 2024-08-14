@@ -85,9 +85,10 @@ class TestAssistant(object):
             'gpt_model': 'gpt-4o-mini',
         }
         assert self.ai.update_settings(**valid_settings)
-        assert self.ai.settings['GPT_MODEL'] == valid_settings['gpt_model']
-        assert self.ai.settings['GPT_MODEL'] == valid_settings['gpt_model']
+        assert SETTINGS['GPT_MODEL'] == valid_settings['gpt_model']
+        assert SETTINGS['OPENAI_API_KEY'] == valid_settings['openai_api_key']
         assert self.ai.update_settings(openai_api_key=valid_settings['openai_api_key'])
+        assert self.ai.update_settings(gpt_model=valid_settings['gpt_model'])
 
     def test_update_invalid_settings(self):
         with pytest.raises(ValueError, match='Invalid OpenAI API key'):

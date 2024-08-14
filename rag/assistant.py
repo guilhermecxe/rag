@@ -13,8 +13,7 @@ class Assistant:
         self.last_question = ''
         self.last_context = ''
 
-        self.settings = dict(SETTINGS)
-        self.settings['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
+        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
 
     def __parse_context(self, chunks):
         chunks_text = []
@@ -27,7 +26,7 @@ class Assistant:
         file_paths = []
         for folder, files in contents.items():
             for file in files:
-                path = os.path.join(self.settings['CONTENTS_PATH'], folder, file)
+                path = os.path.join(SETTINGS['CONTENTS_PATH'], folder, file)
                 file_paths.append(path)
         return file_paths
 
@@ -82,13 +81,13 @@ class Assistant:
         if openai_api_key:
             if self.check_api_key(openai_api_key):
                 self.model.update_openai_api_key(openai_api_key)
-                self.settings['OPENAI_API_KEY'] = openai_api_key
+                SETTINGS['OPENAI_API_KEY'] = openai_api_key
             else:
                 raise ValueError("Invalid OpenAI API key")
         
         if gpt_model:
             if self.check_model(gpt_model):
-                self.settings['GPT_MODEL'] = gpt_model
+                SETTINGS['GPT_MODEL'] = gpt_model
             else:
                 raise ValueError('Invalid GPT Model')
         
