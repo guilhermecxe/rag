@@ -36,19 +36,25 @@ class AiModel():
             return True
         else:
             return False
-
+        
+    def is_suitable_model(self, model=None):
+        if not model:
+            model = SETTINGS['GPT_MODEL']
+        
+        try:
+            self.client.chat.completions.create(model=model, messages=[{'role': 'user', 'content': 'Hi!'}])
+        except openai.NotFoundError:
+            return False
+        else:
+            return True
+        
     def ask(self, question:str, context:str):
         self.last_prompt = self.prompt_template.format(question=question, context=context)
 
-        try:
-            return self.client.chat.completions.create(
-                model=SETTINGS.get('GPT_MODEL'),
-                messages=[
-                    {'role': 'system', 'content': SETTINGS.get('SYSTEM_INSTRUCTION')},
-                    {'role': 'user', 'content': self.last_prompt}
-                ]
-            ).choices[0].message.content
-        except openai.NotFoundError:
-            raise ValueError(
-                f'''It appears that the model being used ({SETTINGS['GPT_MODEL']}) '''
-                 '''is not the suitable for this purpose.''')
+        return self.client.chat.completions.create(
+            model=SETTINGS.get('GPT_MODEL'),
+            messages=[
+                {'role': 'system', 'content': SETTINGS.get('SYSTEM_INSTRUCTION')},
+                {'role': 'user', 'content': self.last_prompt}
+            ]
+        ).choices[0].message.content

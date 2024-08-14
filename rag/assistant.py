@@ -87,7 +87,12 @@ class Assistant:
         
         if gpt_model:
             if self.check_model(gpt_model):
-                SETTINGS['GPT_MODEL'] = gpt_model
+                if self.model.is_suitable_model(gpt_model):
+                    SETTINGS['GPT_MODEL'] = gpt_model
+                else:
+                    raise ValueError(
+                        f'''It appears that the model being used ({SETTINGS['GPT_MODEL']}) '''
+                         '''is not suitable for this purpose.''')
             else:
                 raise ValueError('Invalid GPT Model')
         
