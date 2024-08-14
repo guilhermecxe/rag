@@ -71,8 +71,11 @@ class Assistant:
     def check_api_key(self, api_key=None):
         return self.model.check_api_key(api_key)
     
-    def check_model(self, model):
+    def check_model(self, model=None):
         return self.model.check_model(model)
+    
+    def is_suitable_model(self, model=None):
+        return self.model.is_suitable_model(model)
 
     def update_settings(self, **kwargs):
         openai_api_key = kwargs.get('openai_api_key', None)
