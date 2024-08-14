@@ -8,12 +8,12 @@ import os
 
 class Assistant:
     def __init__(self, openai_api_key=None):
+        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
+        
         self.db = Database()
         self.model = AiModel()
         self.last_question = ''
         self.last_context = ''
-
-        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ['OPENAI_API_KEY']
 
     def __parse_context(self, chunks):
         chunks_text = []
