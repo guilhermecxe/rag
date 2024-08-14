@@ -94,11 +94,12 @@ class TestAssistant(object):
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question)
         assert isinstance(answear, str) is True
-        self.ai.reset_database()
 
     def test_ask_with_contents(self):
-        content_path = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
-        self.ai.add_content(content_path)
+        content_path1 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
+        content_path2 = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
+        self.ai.add_content(content_path1)
+        self.ai.add_content(content_path2)
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, {'FAPEG': ['Estatuto da FAPEG 2023.pdf']})
         assert isinstance(answear, str) is True
