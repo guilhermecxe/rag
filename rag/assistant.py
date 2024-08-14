@@ -77,8 +77,21 @@ class Assistant:
 
     def update_settings(self, **kwargs):
         openai_api_key = kwargs.get('openai_api_key', None)
-        if openai_api_key and not self.model.update_openai_api_key(openai_api_key):
-            raise ValueError("Invalid OpenAI API key")
+        gpt_model = kwargs.get('gpt_model', None)
+
+        if openai_api_key:
+            if self.check_api_key(openai_api_key):
+                self.model.update_openai_api_key(openai_api_key)
+                self.settings['OPENAI_API_KEY'] = openai_api_key
+            else:
+                raise ValueError("Invalid OpenAI API key")
+        
+        if gpt_model:
+            if self.check_model(gpt_model):
+                self.settings['GPT_MODEL'] = gpt_model
+            else:
+                raise ValueError('Invalid GPT Model')
+        
         return True
 
     def ask(self, question, contents={}, only_positive_similarities=False):

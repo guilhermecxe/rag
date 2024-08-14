@@ -80,11 +80,20 @@ class TestAssistant(object):
         assert not self.ai.check_model('gpt-3k-maxi')
 
     def test_update_valid_settings(self):
-        assert self.ai.update_settings(openai_api_key=os.environ['OPENAI_API_KEY'])
+        valid_settings = {
+            'openai_api_key': os.environ['OPENAI_API_KEY'],
+            'gpt_model': 'gpt-4o-mini',
+        }
+        assert self.ai.update_settings(**valid_settings)
+        assert self.ai.settings['GPT_MODEL'] == valid_settings['gpt_model']
+        assert self.ai.settings['GPT_MODEL'] == valid_settings['gpt_model']
+        assert self.ai.update_settings(openai_api_key=valid_settings['openai_api_key'])
 
     def test_update_invalid_settings(self):
         with pytest.raises(ValueError, match='Invalid OpenAI API key'):
             self.ai.update_settings(openai_api_key='abc')
+        with pytest.raises(ValueError, match='Invalid GPT Model'):
+            self.ai.update_settings(gpt_model='abc')
 
     def test_ask(self):
         content_path1 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
