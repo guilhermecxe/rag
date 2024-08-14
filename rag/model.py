@@ -20,6 +20,8 @@ class AiModel():
             return False
 
     def check_api_key(self, api_key=None):
+        if api_key == '':
+            return False
         new_client = openai.OpenAI(api_key=api_key)
         try:
             new_client.models.list()
