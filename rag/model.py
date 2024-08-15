@@ -5,7 +5,7 @@ from .settings import SETTINGS
 
 class AiModel():
     def __init__(self):
-        self.client = openai.OpenAI()
+        self.reset_client(SETTINGS.get('OPENAI_API_KEY'))
         self.prompt_template = ChatPromptTemplate.from_template(SETTINGS.get('PROMPT_TEMPLATE'))
         self.last_prompt = None
 
