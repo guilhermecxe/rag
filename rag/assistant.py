@@ -37,6 +37,12 @@ class Assistant:
 
     def get_available_contents(self, as_dict=True):
         return self.db.get_unique_sources(as_dict=as_dict)
+    
+    def get_contents_max_size(self):
+        return {
+            'pdf': PdfParser.MAX_SIZE,
+            'xlsx': XlsxParser.MAX_SIZE,
+        }
 
     def update_database(self):
         new_files = self.get_new_contents()
