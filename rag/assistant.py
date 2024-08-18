@@ -91,6 +91,7 @@ class Assistant:
             if self.check_api_key(openai_api_key):
                 self.model.update_openai_api_key(openai_api_key)
                 SETTINGS['OPENAI_API_KEY'] = openai_api_key
+                self.db.reinitialize() # to the embedding function get the new openai api key
             else:
                 raise ValueError("Invalid OpenAI API key")
         

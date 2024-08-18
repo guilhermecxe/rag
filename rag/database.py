@@ -10,6 +10,9 @@ class Database:
     def __init__(self):
         self.__initialize_collection()
 
+    def reinitialize(self):
+        self.__initialize_collection()
+
     def __initialize_collection(self):
         client = chromadb.PersistentClient(path=SETTINGS.get('VECTORS_DATABASE_PATH'))
         self.collection = client.get_or_create_collection(
