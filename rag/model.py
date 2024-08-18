@@ -43,7 +43,7 @@ class AiModel():
         
         try:
             self.client.chat.completions.create(model=model, messages=[{'role': 'user', 'content': 'Hi!'}])
-        except openai.NotFoundError:
+        except (openai.NotFoundError, openai.PermissionDeniedError):
             return False
         else:
             return True
