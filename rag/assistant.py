@@ -7,9 +7,12 @@ from .settings import SETTINGS
 import os
 
 class Assistant:
-    def __init__(self, openai_api_key=None):
+    def __init__(self, openai_api_key=None, gpt_model=None):
         SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ.get('OPENAI_API_KEY')
         
+        if gpt_model:
+            SETTINGS['GPT_MODEL'] = gpt_model # trusting gpt_model is suitable
+
         self.db = Database()
         self.model = AiModel()
         self.last_question = ''
