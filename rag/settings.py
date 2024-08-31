@@ -17,7 +17,7 @@ SETTINGS = {
 
     # AI Model
     'GPT_MODEL': 'gpt-4o-mini',
-    'OPENAI_API_KEY': None, # Filled when Assistant is created
+    'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
     'SYSTEM_INSTRUCTION': f"""
         Você é um assistente prestativo que não responde se não estiver confiante.
         Hoje é {date.today().strftime('%d/%m/%Y')}.""",

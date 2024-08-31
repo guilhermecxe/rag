@@ -1,6 +1,8 @@
+from dotenv import load_dotenv
 import pytest
 import openai
 import os
+from pydantic.v1.main import ValidationError
 
 from rag.assistant import Assistant
 from rag.settings import SETTINGS
@@ -16,7 +18,7 @@ class TestAssistant(object):
         cls.instance.ai.reset_database()
 
     def test_reset_database(self):
-        contents = self.ai.get_available_contents(as_dict=False)
+        contents = self.ai.get_available_contents()
         assert len(contents) == 0
 
     def test_get_new_contents(self):
@@ -39,21 +41,21 @@ class TestAssistant(object):
             'Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf',
             'Xlsx\\file_example_XLS_100.xlsx']
         expected = [os.path.join(contents_path, content) for content in expected_contents]
-        actual = self.ai.get_available_contents(as_dict=False)
+        actual = self.ai.get_available_contents()
         assert set(actual) == set(expected)
 
     def test_add_content(self):
         content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
         self.ai.delete_contents([content_path])
         self.ai.add_content(content_path)
-        available_contents = self.ai.get_available_contents(as_dict=False)
+        available_contents = self.ai.get_available_contents()
         assert content_path in available_contents
 
     def test_add_content_xlsx(self):
         content_path = 'contents\\Xlsx\\file_example_XLS_100.xlsx'
         self.ai.delete_contents([content_path])
         self.ai.add_content(content_path)
-        available_contents = self.ai.get_available_contents(as_dict=False)
+        available_contents = self.ai.get_available_contents()
         assert content_path in available_contents
         self.ai.reset_database()
 
@@ -63,7 +65,7 @@ class TestAssistant(object):
         self.ai.add_content(content_path1)
         self.ai.add_content(content_path2)
         self.ai.delete_contents([content_path1])
-        available_contents = self.ai.get_available_contents(as_dict=False)
+        available_contents = self.ai.get_available_contents()
         assert not content_path1 in available_contents
         assert content_path2 in available_contents
         self.ai.reset_database()
@@ -98,11 +100,13 @@ class TestAssistant(object):
             self.ai.update_settings(gpt_model='abc')
 
     def test_no_api_key(self):
-        current_key = os.environ.get('OPENAI_API_KEY')
+        current_key = SETTINGS['OPENAI_API_KEY']
         os.environ.pop('OPENAI_API_KEY', None)
-        with pytest.raises(openai.OpenAIError):
+        SETTINGS['OPENAI_API_KEY'] = None
+        with pytest.raises(ValidationError):
             Assistant()
-        SETTINGS['OPENAI_API_KEY'] = os.environ['OPENAI_API_KEY'] = current_key # voltando à configuração inicial
+        SETTINGS['OPENAI_API_KEY'] = current_key # voltando à configuração inicial
+        load_dotenv('.env')
 
     def test_ask(self):
         content_path1 = 'contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'
@@ -129,10 +133,3 @@ class TestAssistant(object):
         question = 'quais as diretorias da fapeg?'
         answear = self.ai.ask(question, ['contents\\FAPEG\\Estatuto da FAPEG 2023.pdf'])
         assert isinstance(answear, str) is True
-
-    def test_ask_with_only_positive_similarities(self):
-        content_path = 'contents\\Sherlock Holmes\\The Adventures of Sherlock Holmes.pdf'
-        self.ai.add_content(content_path)
-        question = 'quais as diretorias da fapeg?'
-        with pytest.raises(ValueError, match='No chunks found that meet the similarity criteria.'):
-            self.ai.ask(question, [content_path], only_positive_similarities=True)

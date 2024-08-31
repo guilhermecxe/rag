@@ -34,12 +34,12 @@ class Assistant:
         return file_paths
 
     def get_new_contents(self):
-        database_sources = self.db.get_unique_sources(as_dict=False)
+        database_sources = self.db.get_unique_sources()
         available_contents = get_all_files()
         return list(set(available_contents) - set(database_sources))
 
-    def get_available_contents(self, as_dict=True):
-        return self.db.get_unique_sources(as_dict=as_dict)
+    def get_available_contents(self):
+        return self.db.get_unique_sources()
     
     def get_contents_max_size(self):
         return {
@@ -111,9 +111,9 @@ class Assistant:
         
         return True
 
-    def ask(self, question, contents={}, only_positive_similarities=False):
+    def ask(self, question, contents={}):
         sources = self.__parse_contents(contents) if isinstance(contents, dict) else contents
-        relevant_chunks = self.db.search(question, sources, only_positive_similarities)
+        relevant_chunks = self.db.search(question, sources)
         context = self.__parse_context(relevant_chunks)
         
         answear = self.model.ask(question, context)

@@ -22,7 +22,7 @@ class TestDatabase(object):
         pass
 
     def test_get_unique_sources(self):
-        unique_sources = self.db.get_unique_sources(as_dict=False)
+        unique_sources = self.db.get_unique_sources()
         assert isinstance(unique_sources, list)
 
     def test_search(self):
