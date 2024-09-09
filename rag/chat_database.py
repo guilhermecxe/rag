@@ -16,19 +16,22 @@ class ControlledChatMessageHistory(ChatMessageHistory):
 
 class ChatDatabase:
     def __init__(self):
+        self._db_path = os.path.join(SETTINGS['CHAT_DATABASE_FOLDER'], SETTINGS['CHAT_DATABASE_FILE'])
         self.sessions = self.__read_sessions()
 
     def __read_sessions(self):
-        if not os.path.exists(SETTINGS['CHAT_DATABASE_PATH']):
+        if not os.path.exists(SETTINGS['CHAT_DATABASE_FOLDER']):
+            os.mkdir(SETTINGS['CHAT_DATABASE_FOLDER'])
+        if not os.path.exists(self._db_path):
             self.sessions = {'sources': {}, 'history': {}}
             self.save_sessions()
 
-        with open(SETTINGS['CHAT_DATABASE_PATH'], 'rb') as f:
+        with open(self._db_path, 'rb') as f:
             sessions = pickle.load(f)
         return sessions
     
     def save_sessions(self):
-        with open(SETTINGS['CHAT_DATABASE_PATH'], 'wb') as f:
+        with open(self._db_path, 'wb') as f:
             pickle.dump(self.sessions, f)
 
     def reset_database(self):

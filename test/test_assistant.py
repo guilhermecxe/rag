@@ -148,6 +148,7 @@ class TestAssistant(object):
         session_id = 'people chat'
         self.ai.add_content(content_path)
         self.ai.create_chat_session(session_id)
+        self.ai.add_session_contents(session_id, [content_path])
         answer = self.ai.ask_chat('Be short, what the context is talking about?', session_id)
         assert isinstance(answer, str)
 

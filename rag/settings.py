@@ -16,7 +16,8 @@ SETTINGS = {
     'MAX_CONTEXT_CHUNKS': 40,
 
     # Chat
-    'CHAT_DATABASE_PATH': 'chat_database/sessions.pkl',
+    'CHAT_DATABASE_FOLDER': 'chat_database',
+    'CHAT_DATABASE_FILE': 'sessions.pkl',
 
     # AI Model
     'GPT_MODEL': 'gpt-4o-mini',
