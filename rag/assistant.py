@@ -22,8 +22,8 @@ class Assistant:
         self._model = AiModel()
 
         self.current_chat_contents = []
-        # self.last_question = ''
-        # self.last_context = ''
+        self.last_question = ''
+        self.last_context = []
 
         self.ha_retriever = self.__create_history_aware_retriever()
         self.qa_chain = self.__create_qa_chain()

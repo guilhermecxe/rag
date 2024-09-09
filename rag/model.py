@@ -44,7 +44,7 @@ class AiModel():
         """
         Checks if the model exist for OpenAI's API.
         """
-        models = openai.OpenAI().models.list()
+        models = openai.OpenAI(api_key=SETTINGS['OPENAI_API_KEY']).models.list()
         if list(filter(lambda m: m.id == model, models)):
             return True
         else:
