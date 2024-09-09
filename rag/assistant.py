@@ -147,7 +147,7 @@ class Assistant:
     
     def ask(self, question, contents={}):
         relevant_chunks = self._contents_db.search(question, sources=contents)
-        answer = self.qa_chain.invoke({'input': 'Hi', 'context': relevant_chunks, 'chat_history': []})
+        answer = self.qa_chain.invoke({'input': question, 'context': relevant_chunks, 'chat_history': []})
         self.last_question = question
         self.last_context = relevant_chunks
         return answer
@@ -189,6 +189,10 @@ class Assistant:
 
     def ask_chat(self, question, session_id=None):
         session_contents = self._chat_db.get_session_sources(session_id)
+        if not session_contents:
+            raise ValueError((
+                '''You must add a content to the chat session to ask something. '''
+                '''Try ai.add_session_contents(session_id, [content]).'''))
         if set(self.current_chat_contents) != set(session_contents):
             self.update_chat(session_contents)
 

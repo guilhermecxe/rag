@@ -66,9 +66,9 @@ class ChatDatabase:
         self.sessions['sources'][session_id].remove(source)
 
     def delete_session(self, session_id:str):
-        del self.sessions['sources'][session_id]
-        del self.sessions['history'][session_id]
+        if session_id in self.sessions['sources']:
+            del self.sessions['sources'][session_id]
+            del self.sessions['history'][session_id]
 
     def delete_sessions(self):
         self.sessions = {'history': {}, 'sources': {}}
-        
