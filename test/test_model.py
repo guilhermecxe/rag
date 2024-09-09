@@ -6,9 +6,14 @@ from rag import Assistant
 from rag.model import AiModel
 
 class TestAiModel(object):
-    def setup_method(self):
-        self.ai = Assistant()
-        self.model = AiModel()
+    @classmethod
+    def setup_class(cls):
+        cls.model = AiModel()
+        print('\nDEBUG: Setup method executed.')
+
+    @classmethod
+    def teardown_class(cls):
+        pass # not necessary
 
     def test_check_valid_api_key(self):
         assert self.model.check_api_key()
@@ -37,3 +42,7 @@ class TestAiModel(object):
     def test_is_suitable_model(self):
         assert self.model.is_suitable_model('gpt-4o-mini')
         assert not self.model.is_suitable_model('whisper-1')
+
+    def test_ask(self):
+        answer = self.model.ask('Hi!', context='Just saying hi.')
+        assert isinstance(answer, str)

@@ -163,4 +163,4 @@ cython_debug/
 
 # Local tests files
 run.py
-database/
+*_database/

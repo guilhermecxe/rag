@@ -3,12 +3,24 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.schema.document import Document
 
 from .settings import SETTINGS
-from .files import get_all_files
 
 import pandas as pd
 import os
 
-class PdfParser:
+class ParserInterface:
+    MAX_SIZE = None
+
+    def split_documents(documents:list[Document], separators:list[str]=['\n\n', '\n', '.', ' ', '']):
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=separators,
+            chunk_size=SETTINGS.get('CHUNK_SIZE'),
+            chunk_overlap=SETTINGS.get('CHUNK_OVERLAP'),
+            length_function=len,
+        )
+        chunks = text_splitter.split_documents(documents)
+        return chunks
+
+class PdfParser(ParserInterface):
     MAX_SIZE = 20000 # KB
 
     def load_pdf(file_path:str) -> list:
@@ -26,24 +38,7 @@ class PdfParser:
             documents += PdfParser.load_pdf(file)
         return documents
 
-    def load_all_pdfs() -> list:
-        files = get_all_files()
-        documents = []
-        for file in files:
-            documents += PdfParser.load_pdf(file)
-        return documents
-
-    def split_documents(documents:list) -> list:
-        text_splitter = RecursiveCharacterTextSplitter(
-            separators=['\n\n', '\n', '.', ' ', ''],
-            chunk_size=SETTINGS.get('CHUNK_SIZE'),
-            chunk_overlap=SETTINGS.get('CHUNK_OVERLAP'),
-            length_function=len,
-        )
-        chunks = text_splitter.split_documents(documents)
-        return chunks
-
-class XlsxParser:
+class XlsxParser(ParserInterface):
     MAX_SIZE = 2000 # KB
 
     def load_xlsx(file_path:str) -> list[Document]:
@@ -70,13 +65,3 @@ class XlsxParser:
         for file in paths:
             documents += XlsxParser.load_xlsx(file)
         return documents
-    
-    def split_documents(document:str):
-        text_splitter = RecursiveCharacterTextSplitter(
-            separators=['\n\n', '---', '\n'],
-            chunk_size=SETTINGS.get('CHUNK_SIZE'),
-            chunk_overlap=0,
-            length_function=len,
-        )
-        chunks = text_splitter.split_documents(document)
-        return chunks
