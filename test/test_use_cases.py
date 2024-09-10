@@ -1,5 +1,4 @@
 from rag.assistant import Assistant
-from rag.settings import SETTINGS
 
 import pytest
 import re
@@ -7,8 +6,8 @@ import re
 class TestUseCases(object):
     @classmethod
     def setup_class(cls):
-        SETTINGS['MAX_CONTEXT_CHUNKS'] = 4 # ensuring the value, but maybe not the best way to alter it
         cls.ai = Assistant()
+        cls.ai.update_settings(max_visible_chat_messages=4) # ensuring the default value
         cls.ai.reset_contents_database()
         cls.ai.reset_chat_database()
         print('\nDEBUG: Setup method executed.')
@@ -32,7 +31,7 @@ class TestUseCases(object):
         history = self.ai.get_chat_session(session_id)['history']
         model_visible_messages = history.messages
         all_messages = history.all_messages
-        assert len(model_visible_messages) == SETTINGS['MAX_CHAT_MESSAGES_VISIBLE'] # expecting 4
+        assert len(model_visible_messages) == self.ai._settings.get('MAX_VISIBLE_CHAT_MESSAGES') # expecting 4
         assert len(all_messages) ==  6
 
     def test_no_chat_content(self):

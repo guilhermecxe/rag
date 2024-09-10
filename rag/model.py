@@ -2,15 +2,16 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 import openai
 
-from .settings import SETTINGS
+from .settings import Settings
 
 class AiModel():
-    def __init__(self):
-        self._client = self.__initialize_client(SETTINGS.get('OPENAI_API_KEY'))
-        self._prompt_template = ChatPromptTemplate.from_template(SETTINGS.get('PROMPT_TEMPLATE'))
+    def __init__(self, settings:Settings):
+        self._settings = settings
+        self._client = self.__initialize_client(self._settings.get('OPENAI_API_KEY'))
+        self._prompt_template = ChatPromptTemplate.from_template(self._settings.get('PROMPT_TEMPLATE'))
 
     def __initialize_client(self, api_key=None):
-        return ChatOpenAI(api_key=api_key, model=SETTINGS['GPT_MODEL'])
+        return ChatOpenAI(api_key=api_key if api_key else self._settings.get('OPENAI_API_KEY'))
 
     def reset_client(self, api_key=None):
         """
@@ -44,7 +45,7 @@ class AiModel():
         """
         Checks if the model exist for OpenAI's API.
         """
-        models = openai.OpenAI(api_key=SETTINGS['OPENAI_API_KEY']).models.list()
+        models = openai.OpenAI(api_key=self._settings.get('OPENAI_API_KEY')).models.list()
         if list(filter(lambda m: m.id == model, models)):
             return True
         else:
@@ -55,7 +56,7 @@ class AiModel():
         Checks if the model works as an AI text agent.
         """
         if not model:
-            model = SETTINGS['GPT_MODEL']
+            model = self._settings.get('GPT_MODEL')
         
         try:
             self._client.client.create(model=model, messages=[{'role': 'user', 'content': 'Hi!'}])
@@ -68,9 +69,9 @@ class AiModel():
         query = self._prompt_template.format(question=question, context=context)
 
         return self._client.client.create(
-            model=SETTINGS.get('GPT_MODEL'),
+            model=self._settings.get('GPT_MODEL'),
             messages=[
-                {'role': 'system', 'content': SETTINGS.get('SYSTEM_INSTRUCTION')},
+                {'role': 'system', 'content': self._settings.get('SYSTEM_INSTRUCTION')},
                 {'role': 'user', 'content': query}
             ]
         ).choices[0].message.content

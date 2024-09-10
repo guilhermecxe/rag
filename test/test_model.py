@@ -1,14 +1,12 @@
-import pytest
 import os
-import re
 
-from rag import Assistant
 from rag.model import AiModel
+from rag.settings import Settings
 
 class TestAiModel(object):
     @classmethod
     def setup_class(cls):
-        cls.model = AiModel()
+        cls.model = AiModel(Settings())
         print('\nDEBUG: Setup method executed.')
 
     @classmethod

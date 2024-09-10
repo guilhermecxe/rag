@@ -2,7 +2,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.schema.document import Document
 
-from .settings import SETTINGS
+from .settings import Settings
 
 import pandas as pd
 import os
@@ -10,11 +10,14 @@ import os
 class ParserInterface:
     MAX_SIZE = None
 
-    def split_documents(documents:list[Document], separators:list[str]=['\n\n', '\n', '.', ' ', '']):
+    def __init__(self, settings:Settings):
+        self._settings = settings
+
+    def split_documents(self, documents:list[Document], separators:list[str]=['\n\n', '\n', '.', ' ', '']):
         text_splitter = RecursiveCharacterTextSplitter(
             separators=separators,
-            chunk_size=SETTINGS.get('CHUNK_SIZE'),
-            chunk_overlap=SETTINGS.get('CHUNK_OVERLAP'),
+            chunk_size=self._settings.get('CHUNK_SIZE'),
+            chunk_overlap=self._settings.get('CHUNK_OVERLAP'),
             length_function=len,
         )
         chunks = text_splitter.split_documents(documents)
@@ -23,7 +26,7 @@ class ParserInterface:
 class PdfParser(ParserInterface):
     MAX_SIZE = 20000 # KB
 
-    def load_pdf(file_path:str) -> list:
+    def load_pdf(self, file_path:str) -> list:
         file_size = os.path.getsize(file_path) / 1000
         if file_size > PdfParser.MAX_SIZE:
             raise OSError(
@@ -32,7 +35,7 @@ class PdfParser(ParserInterface):
 
         return PyMuPDFLoader(file_path).load_and_split()
     
-    def load_pdfs(paths:list[str]):
+    def load_pdfs(self, paths:list[str]):
         documents = []
         for file in paths:
             documents += PdfParser.load_pdf(file)
@@ -41,7 +44,7 @@ class PdfParser(ParserInterface):
 class XlsxParser(ParserInterface):
     MAX_SIZE = 2000 # KB
 
-    def load_xlsx(file_path:str) -> list[Document]:
+    def load_xlsx(self, file_path:str) -> list[Document]:
         file_size = os.path.getsize(file_path) / 1000
         if file_size > XlsxParser.MAX_SIZE:
             raise OSError(
@@ -60,7 +63,7 @@ class XlsxParser(ParserInterface):
         document = Document(page_content=text, metadata={'source': file_path})
         return [document]
     
-    def load_xlsxs(paths:list[str]):
+    def load_xlsxs(self, paths:list[str]):
         documents = []
         for file in paths:
             documents += XlsxParser.load_xlsx(file)

@@ -1,11 +1,12 @@
 from langchain.schema.document import Document
 from langchain_chroma import Chroma
 
-from .settings import SETTINGS
+from .settings import Settings
 from .utils import get_embedding_function
 
 class Database:
-    def __init__(self):
+    def __init__(self, settings:Settings):
+        self._settings = settings
         self._client = self.__initialize_client()
 
     def reinitialize(self):
@@ -21,15 +22,15 @@ class Database:
         Defines the Chroma instance to manage the chroma database client.
         """
         return Chroma(
-            persist_directory=SETTINGS.get('VECTORS_DATABASE_PATH'),
-            embedding_function=get_embedding_function(),
+            persist_directory=self._settings.get('VECTORS_DATABASE_PATH'),
+            embedding_function=get_embedding_function(self._settings.get('OPENAI_API_KEY')),
             # embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="distiluse-base-multilingual-cased-v1")
         )
 
     def get_retriever(self, sources:list[str]):
         filter = {'source': {'$in': sources}} if sources else {}
         return self._client.as_retriever(
-            search_kwargs={'filter': filter, 'k': SETTINGS['MAX_CONTEXT_CHUNKS']})
+            search_kwargs={'filter': filter, 'k': self._settings.get('MAX_CONTEXT_CHUNKS')})
     
     def get_chunks_count(self):
         """
@@ -75,6 +76,6 @@ class Database:
         Returns the `MAX_CONTEXT_CHUNKS` chunks most similar to the query. 
         """
         condition = {'source': {'$in': sources}} if sources else {}
-        results = self._client.similarity_search(query=query, k=SETTINGS['MAX_CONTEXT_CHUNKS'], filter=condition)
+        results = self._client.similarity_search(query=query, k=self._settings.get('MAX_CONTEXT_CHUNKS'), filter=condition)
         return results
     

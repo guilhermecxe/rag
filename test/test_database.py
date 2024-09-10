@@ -1,9 +1,10 @@
 from rag.database import Database
+from rag.settings import Settings
 
 class TestDatabase(object):
     @classmethod
     def setup_class(cls):
-        cls.db = Database()
+        cls.db = Database(Settings())
         print('\nDEBUG: Setup method executed.')
 
     @classmethod

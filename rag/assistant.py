@@ -2,7 +2,7 @@ from .database import Database
 from .chat_database import ChatDatabase
 from .parsers import PdfParser, XlsxParser
 from .model import AiModel
-from .settings import SETTINGS
+from .settings import Settings
 
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -12,14 +12,19 @@ import os
 
 class Assistant:
     def __init__(self, openai_api_key=None, gpt_model=None):
-        SETTINGS['OPENAI_API_KEY'] = openai_api_key if openai_api_key else os.environ.get('OPENAI_API_KEY')
-        
-        if gpt_model:
-            SETTINGS['GPT_MODEL'] = gpt_model # trusting gpt_model is suitable
+        self._settings = Settings()
+        self._settings.set('OPENAI_API_KEY', openai_api_key if openai_api_key else os.environ.get('OPENAI_API_KEY'))
 
-        self._contents_db = Database()
-        self._chat_db = ChatDatabase()
-        self._model = AiModel()
+        if gpt_model:
+            self._settings.set('GPT_MODEL', gpt_model) # trusting gpt_model is suitable
+
+        self._contents_db = Database(self._settings)
+        self._chat_db = ChatDatabase(self._settings)
+        self._model = AiModel(self._settings)
+        self._parsers = {
+            'pdf': PdfParser(self._settings),
+            'xlsx': XlsxParser(self._settings)
+        }
 
         self.current_chat_contents = []
         self.last_question = ''
@@ -49,13 +54,13 @@ class Assistant:
         """
         if path in self.get_available_contents():
             return
-        
+
         if path.endswith('.pdf'):
-            documents = PdfParser.load_pdf(path)
-            chunks = PdfParser.split_documents(documents)
+            documents = self._parsers['pdf'].load_pdf(path)
+            chunks = self._parsers['pdf'].split_documents(documents)
         elif path.endswith('.xlsx'):
-            documents = XlsxParser.load_xlsx(path)
-            chunks = XlsxParser.split_documents(documents)
+            documents = self._parsers['xlsx'].load_xlsx(path)
+            chunks = self._parsers['xlsx'].split_documents(documents)
         self._contents_db.insert_chunks(chunks)
 
     def add_contents(self, paths:list[str]):
@@ -92,31 +97,34 @@ class Assistant:
     
     def is_suitable_model(self, model=None):
         return self._model.is_suitable_model(model)
-
+    
     def update_settings(self, **kwargs):
-        openai_api_key = kwargs.get('openai_api_key', None)
-        gpt_model = kwargs.get('gpt_model', None)
-
-        if openai_api_key:
-            if self.check_api_key(openai_api_key):
-                self._model.update_openai_api_key(openai_api_key)
-                SETTINGS['OPENAI_API_KEY'] = openai_api_key
-                self._contents_db.reinitialize() # to the embedding function get the new openai api key
-            else:
-                raise ValueError("Invalid OpenAI API key")
-        
-        if gpt_model:
-            if self.check_model(gpt_model):
-                if self._model.is_suitable_model(gpt_model):
-                    SETTINGS['GPT_MODEL'] = gpt_model
+        if('chunk_size' in kwargs):
+            self._settings.set('CHUNK_SIZE', kwargs.get('chunk_size'))
+        if('chunk_overlap' in kwargs):
+            self._settings.set('CHUNK_OVERLAP', kwargs.get('chunk_overlap'))
+        if('gpt_model' in kwargs):
+            if self.check_model(kwargs.get('gpt_model')):
+                if self._model.is_suitable_model(kwargs.get('gpt_model')):
+                    self._settings.set('GPT_MODEL', kwargs.get('gpt_model'))
                 else:
                     raise ValueError(
-                        f'''It appears that the model being used ({SETTINGS['GPT_MODEL']}) '''
+                        f'''It appears that the model being used ({kwargs.get('gpt_model')}) '''
                          '''is not suitable for this purpose.''')
             else:
                 raise ValueError('Invalid GPT Model')
-        
-        return True
+        if('openai_api_key' in kwargs):
+            if self.check_api_key(kwargs.get('openai_api_key')):
+                self._settings.set('OPENAI_API_KEY', kwargs.get('openai_api_key'))
+                self._model.reset_client() # to the openai client use the new api key
+                self._contents_db.reinitialize() # to the embedding function get the new openai api key
+            else:
+                raise ValueError("Invalid OpenAI API key")
+        if('max_visible_chat_messages' in kwargs):
+            self._settings.set('MAX_VISIBLE_CHAT_MESSAGES', kwargs.get('max_visible_chat_messages'))
+            # Checks if it apply on running time without saving and reinitializing chat database
+            # self._chat_db.save_sessions()
+            # self._chat_db = ChatDatabase(self._settings) # reinitializing chat database to apply to 
     
     def __create_history_aware_retriever(self, contents:list[str]=[]):
         """
@@ -124,7 +132,7 @@ class Assistant:
         context so the model can answer it without accessing all the chat history.
         """
         contextualizer_prompt = ChatPromptTemplate.from_messages([
-            ("system", SETTINGS['CONTEXTUALIZER_SYSTEM_PROMPT']),
+            ("system", self._settings.get('CONTEXTUALIZER_SYSTEM_PROMPT')),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}")])
 
@@ -138,7 +146,7 @@ class Assistant:
         with the documents as context.
         """        
         qa_prompt = ChatPromptTemplate.from_messages([
-            ("system", SETTINGS['QA_SYSTEM_PROMP']),
+            ("system", self._settings.get('QA_SYSTEM_PROMP')),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}")])
 

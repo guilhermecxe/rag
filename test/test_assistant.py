@@ -5,12 +5,10 @@ from pydantic.v1.main import ValidationError
 from langchain.schema.document import Document
 
 from rag.assistant import Assistant
-from rag.settings import SETTINGS
 
 class TestAssistant(object):
     @classmethod
     def setup_class(cls):
-        SETTINGS['MAX_CONTEXT_CHUNKS'] = 4 # maybe not the best way to alter it
         cls.ai = Assistant()
         cls.ai.reset_contents_database()
         cls.ai.reset_chat_database()
@@ -76,9 +74,9 @@ class TestAssistant(object):
             'openai_api_key': os.environ['OPENAI_API_KEY'], # considering valid api key on PATH
             'gpt_model': 'gpt-4o-mini',
         }
-        assert self.ai.update_settings(**valid_settings)
-        assert SETTINGS['GPT_MODEL'] == valid_settings['gpt_model']
-        assert SETTINGS['OPENAI_API_KEY'] == valid_settings['openai_api_key']
+        self.ai.update_settings(**valid_settings)
+        assert self.ai._settings.get('GPT_MODEL') == valid_settings['gpt_model']
+        assert self.ai._settings.get('OPENAI_API_KEY') == valid_settings['openai_api_key']
 
     def test_update_invalid_settings(self):
         with pytest.raises(ValueError, match='Invalid OpenAI API key'):
@@ -87,12 +85,12 @@ class TestAssistant(object):
             self.ai.update_settings(gpt_model='abc')
 
     def test_no_api_key(self):
-        current_key = SETTINGS['OPENAI_API_KEY'] # saving current api key
+        current_key = self.ai._settings.get('OPENAI_API_KEY') # saving current api key
         os.environ.pop('OPENAI_API_KEY', None) # removing api key from PATH
-        SETTINGS['OPENAI_API_KEY'] = None # ensuring no api key
+        self.ai._settings.set('OPENAI_API_KEY', None) # ensuring no api key
         with pytest.raises(ValidationError):
             Assistant()
-        SETTINGS['OPENAI_API_KEY'] = current_key # returning to the initial configuration
+        self.ai.update_settings(openai_api_key=current_key) # returning to the initial configuration
         load_dotenv('.env') # returning api key to the PATH
 
     def test_ask(self):

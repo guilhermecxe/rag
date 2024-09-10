@@ -3,25 +3,30 @@ from langchain_core.messages import BaseMessage
 import pickle
 import os
 
-from rag.settings import SETTINGS
+from rag.settings import Settings
 
 class ControlledChatMessageHistory(ChatMessageHistory):
     all_messages = []
 
     def add_message(self, message: BaseMessage) -> None:
+        global max_visible_chat_messages
         super().add_message(message)
         self.all_messages.append(message)
-        if len(self.messages) > SETTINGS['MAX_CHAT_MESSAGES_VISIBLE']:
+        if len(self.messages) > max_visible_chat_messages:
             self.messages.pop(0)
 
 class ChatDatabase:
-    def __init__(self):
-        self._db_path = os.path.join(SETTINGS['CHAT_DATABASE_FOLDER'], SETTINGS['CHAT_DATABASE_FILE'])
+    def __init__(self, settings:Settings):
+        self._settings = settings
+        self._db_path = os.path.join(self._settings.get('CHAT_DATABASE_FOLDER'), self._settings.get('CHAT_DATABASE_FILE'))
         self.sessions = self.__read_sessions()
 
+        global max_visible_chat_messages
+        max_visible_chat_messages = self._settings.get('MAX_VISIBLE_CHAT_MESSAGES')
+
     def __read_sessions(self):
-        if not os.path.exists(SETTINGS['CHAT_DATABASE_FOLDER']):
-            os.mkdir(SETTINGS['CHAT_DATABASE_FOLDER'])
+        if not os.path.exists(self._settings.get('CHAT_DATABASE_FOLDER')):
+            os.mkdir(self._settings.get('CHAT_DATABASE_FOLDER'))
         if not os.path.exists(self._db_path):
             self.sessions = {'sources': {}, 'history': {}}
             self.save_sessions()
